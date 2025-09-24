@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using chat_app.Data;
 
@@ -11,9 +12,11 @@ using chat_app.Data;
 namespace chat_app.Migrations
 {
     [DbContext(typeof(chat_appContext))]
-    partial class chat_appContextModelSnapshot : ModelSnapshot
+    [Migration("20250924135054_mssql.local_migration_977")]
+    partial class mssqllocal_migration_977
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,15 +27,15 @@ namespace chat_app.Migrations
 
             modelBuilder.Entity("GroupUser", b =>
                 {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
                     b.Property<int>("GroupsId")
                         .HasColumnType("int");
 
-                    b.Property<int>("UsersId")
-                        .HasColumnType("int");
+                    b.HasKey("Id");
 
-                    b.HasKey("GroupsId", "UsersId");
-
-                    b.HasIndex("UsersId");
+                    b.HasIndex("GroupsId");
 
                     b.ToTable("GroupUser");
                 });
@@ -95,7 +98,7 @@ namespace chat_app.Migrations
 
                     b.HasOne("chat_app.Models.User", null)
                         .WithMany()
-                        .HasForeignKey("UsersId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

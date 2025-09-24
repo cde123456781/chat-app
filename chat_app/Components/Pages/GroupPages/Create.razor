@@ -1,0 +1,49 @@
+﻿@page "/groups/create"
+@using Microsoft.EntityFrameworkCore
+@using chat_app.Models
+@inject IDbContextFactory<chat_app.Data.chat_appContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Group</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Group" OnValidSubmit="AddGroup" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name:</label> 
+                <InputText id="name" @bind-Value="Group.Name" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Group.Name" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="description" class="form-label">Description:</label> 
+                <InputText id="description" @bind-Value="Group.Description" class="form-control" /> 
+                <ValidationMessage For="() => Group.Description" class="text-danger" /> 
+            </div>            
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/groups">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Group Group { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddGroup()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Group.Add(Group);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/groups");
+    }
+}

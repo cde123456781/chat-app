@@ -15,5 +15,6 @@ namespace chat_app.Data
         }
 
         public DbSet<chat_app.Models.User> User { get; set; } = default!;
+        public DbSet<chat_app.Models.Group> Group { get; set; } = default!;
     }
 }

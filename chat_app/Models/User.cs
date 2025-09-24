@@ -16,5 +16,8 @@ namespace chat_app.Models
         [DataType(DataType.Password)]
         public string? Password { get; set; }
 
+
+        public List<Group> Groups { get; } = [];
+
     }
 }
