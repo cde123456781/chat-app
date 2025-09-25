@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using Mono.TextTemplating;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace chat_app.Models
@@ -8,7 +10,7 @@ namespace chat_app.Models
         public int Id { get; set; }
 
         [Required]
-        [StringLength(30, MinimumLength = 5)]
+        [StringLength(30, MinimumLength = 4)]
         public string? Username { get; set; }
 
         [Required]
@@ -19,5 +21,7 @@ namespace chat_app.Models
 
         public List<Group> Groups { get; } = [];
 
+
     }
+
 }

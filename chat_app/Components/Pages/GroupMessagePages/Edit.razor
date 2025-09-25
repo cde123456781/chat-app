@@ -1,0 +1,89 @@
+﻿@page "/groupmessages/edit"
+@using Microsoft.EntityFrameworkCore
+@using chat_app.Models
+@inject IDbContextFactory<chat_app.Data.chat_appContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>GroupMessage</h2>
+<hr />
+@if (GroupMessage is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="GroupMessage" OnValidSubmit="UpdateGroupMessage" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="GroupMessage.Id" value="@GroupMessage.Id" />
+                <div class="mb-3">
+                    <label for="message" class="form-label">Message:</label>
+                    <InputText id="message" @bind-Value="GroupMessage.Message" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => GroupMessage.Message" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/groupmessages">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private GroupMessage? GroupMessage { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        GroupMessage ??= await context.GroupMessage.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (GroupMessage is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateGroupMessage()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(GroupMessage!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!GroupMessageExists(GroupMessage!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/groupmessages");
+    }
+
+    private bool GroupMessageExists(int id)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.GroupMessage.Any(e => e.Id == id);
+    }
+}

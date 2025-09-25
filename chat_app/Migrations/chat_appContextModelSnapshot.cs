@@ -37,6 +37,24 @@ namespace chat_app.Migrations
                     b.ToTable("GroupUser");
                 });
 
+            modelBuilder.Entity("chat_app.Models.Friend", b =>
+                {
+                    b.Property<int>("User1Id")
+                        .HasColumnType("int")
+                        .HasColumnOrder(0);
+
+                    b.Property<int>("User2Id")
+                        .HasColumnType("int")
+                        .HasColumnOrder(1);
+
+                    b.Property<bool>("Accepted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("User1Id", "User2Id");
+
+                    b.ToTable("Friend");
+                });
+
             modelBuilder.Entity("chat_app.Models.Group", b =>
                 {
                     b.Property<int>("Id")
@@ -60,6 +78,29 @@ namespace chat_app.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Group");
+                });
+
+            modelBuilder.Entity("chat_app.Models.GroupMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("GroupMessage");
                 });
 
             modelBuilder.Entity("chat_app.Models.User", b =>
@@ -98,6 +139,15 @@ namespace chat_app.Migrations
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("chat_app.Models.GroupMessage", b =>
+                {
+                    b.HasOne("chat_app.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

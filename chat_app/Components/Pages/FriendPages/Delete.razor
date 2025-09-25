@@ -1,0 +1,55 @@
+﻿@page "/friends/delete"
+@using Microsoft.EntityFrameworkCore
+@using chat_app.Models
+@inject IDbContextFactory<chat_app.Data.chat_appContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<p>Are you sure you want to delete this?</p>
+<div>
+    <h2>Friend</h2>
+    <hr />
+    @if (friend is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Accepted</dt>
+            <dd class="col-sm-10">@friend.Accepted</dd>
+        </dl>
+        <EditForm method="post" Model="friend" OnValidSubmit="DeleteFriend" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(friend is null)">Delete</button> |
+            <a href="/friends">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private Friend? friend;
+
+    [SupplyParameterFromQuery]
+    private int User1Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        friend = await context.Friend.FirstOrDefaultAsync(m => m.User1Id == User1Id);
+
+        if (friend is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task DeleteFriend()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Friend.Remove(friend!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/friends");
+    }
+}

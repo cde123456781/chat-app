@@ -12,8 +12,8 @@ using chat_app.Data;
 namespace chat_app.Migrations
 {
     [DbContext(typeof(chat_appContext))]
-    [Migration("20250924135054_mssql.local_migration_977")]
-    partial class mssqllocal_migration_977
+    [Migration("20250925054828_mssql.local_migration_111")]
+    partial class mssqllocal_migration_111
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,17 +27,35 @@ namespace chat_app.Migrations
 
             modelBuilder.Entity("GroupUser", b =>
                 {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
                     b.Property<int>("GroupsId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.Property<int>("UsersId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("GroupsId");
+                    b.HasKey("GroupsId", "UsersId");
+
+                    b.HasIndex("UsersId");
 
                     b.ToTable("GroupUser");
+                });
+
+            modelBuilder.Entity("chat_app.Models.Friend", b =>
+                {
+                    b.Property<int>("User1Id")
+                        .HasColumnType("int")
+                        .HasColumnOrder(0);
+
+                    b.Property<int>("User2Id")
+                        .HasColumnType("int")
+                        .HasColumnOrder(1);
+
+                    b.Property<bool>("Accepted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("User1Id", "User2Id");
+
+                    b.ToTable("Friend");
                 });
 
             modelBuilder.Entity("chat_app.Models.Group", b =>
@@ -63,6 +81,29 @@ namespace chat_app.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Group");
+                });
+
+            modelBuilder.Entity("chat_app.Models.GroupMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("GroupMessage");
                 });
 
             modelBuilder.Entity("chat_app.Models.User", b =>
@@ -98,9 +139,18 @@ namespace chat_app.Migrations
 
                     b.HasOne("chat_app.Models.User", null)
                         .WithMany()
-                        .HasForeignKey("Id")
+                        .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("chat_app.Models.GroupMessage", b =>
+                {
+                    b.HasOne("chat_app.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

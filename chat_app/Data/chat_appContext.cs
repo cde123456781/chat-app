@@ -16,5 +16,14 @@ namespace chat_app.Data
 
         public DbSet<chat_app.Models.User> User { get; set; } = default!;
         public DbSet<chat_app.Models.Group> Group { get; set; } = default!;
+        public DbSet<chat_app.Models.GroupMessage> GroupMessage { get; set; } = default!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+
+
+
+        }
+        public DbSet<chat_app.Models.Friend> Friend { get; set; } = default!;
     }
 }

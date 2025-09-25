@@ -1,0 +1,46 @@
+﻿@page "/friends/details"
+@using Microsoft.EntityFrameworkCore
+@using chat_app.Models
+@inject IDbContextFactory<chat_app.Data.chat_appContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Friend</h2>
+    <hr />
+    @if (friend is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Accepted</dt>
+            <dd class="col-sm-10">@friend.Accepted</dd>
+        </dl>
+        <div>
+            <a href="@($"/friends/edit?user1id={friend.User1Id}")">Edit</a> |
+            <a href="@($"/friends")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Friend? friend;
+
+    [SupplyParameterFromQuery]
+    private int User1Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        friend = await context.Friend.FirstOrDefaultAsync(m => m.User1Id == User1Id);
+
+        if (friend is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

@@ -1,0 +1,44 @@
+﻿@page "/groupmessages/create"
+@using Microsoft.EntityFrameworkCore
+@using chat_app.Models
+@inject IDbContextFactory<chat_app.Data.chat_appContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>GroupMessage</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="GroupMessage" OnValidSubmit="AddGroupMessage" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="message" class="form-label">Message:</label> 
+                <InputText id="message" @bind-Value="GroupMessage.Message" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => GroupMessage.Message" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/groupmessages">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private GroupMessage GroupMessage { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddGroupMessage()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.GroupMessage.Add(GroupMessage);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/groupmessages");
+    }
+}

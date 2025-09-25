@@ -1,0 +1,46 @@
+﻿@page "/groupmessages/details"
+@using Microsoft.EntityFrameworkCore
+@using chat_app.Models
+@inject IDbContextFactory<chat_app.Data.chat_appContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>GroupMessage</h2>
+    <hr />
+    @if (groupmessage is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Message</dt>
+            <dd class="col-sm-10">@groupmessage.Message</dd>
+        </dl>
+        <div>
+            <a href="@($"/groupmessages/edit?id={groupmessage.Id}")">Edit</a> |
+            <a href="@($"/groupmessages")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private GroupMessage? groupmessage;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        groupmessage = await context.GroupMessage.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (groupmessage is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}
