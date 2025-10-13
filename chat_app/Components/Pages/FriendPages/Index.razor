@@ -1,6 +1,6 @@
 ﻿@page "/friends"
 @using Microsoft.EntityFrameworkCore
-@using Microsoft.AspNetCore.Components.QuickGrid
+
 @using chat_app.Models
 @using chat_app.Data
 @implements IAsyncDisposable
@@ -14,15 +14,23 @@
     <a href="friends/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="context.Friend">
-    <PropertyColumn Property="friend => friend.Accepted" />
 
-    <TemplateColumn Context="friend">
-        <a href="@($"friends/edit?user1id={friend.User1Id}")">Edit</a> |
-        <a href="@($"friends/details?user1id={friend.User1Id}")">Details</a> |
-        <a href="@($"friends/delete?user1id={friend.User1Id}")">Delete</a>
-    </TemplateColumn>
-</QuickGrid>
+<MudDataGrid Items="context.Friend">
+    <Columns>
+        <PropertyColumn Property="friend => friend.Accepted" />
+        <TemplateColumn>
+            <CellTemplate>
+                <a href="@($"friends/edit?id={context.Item.User1Id}")">Edit</a> |
+                <a href="@($"friends/details?id={context.Item.User1Id}")">Details</a> |
+                <a href="@($"friends/delete?id={context.Item.User1Id}")">Delete</a>
+
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+
+
+
+</MudDataGrid>
 
 @code {
     private chat_appContext context = default!;

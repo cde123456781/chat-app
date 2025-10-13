@@ -1,23 +1,71 @@
 ﻿@inherits LayoutComponentBase
+@using chat_app.Components.Pages;
 
+@* Required *@
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
+<MudPopoverProvider />
+
+@* Needed for dialogs *@
+<MudDialogProvider />
+
+@* Needed for snackbars *@
+<MudSnackbarProvider />
+
+@*
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+    @if (IsLoggedIn)
+    {
+        <div class="sidebar">
+            <NavMenu />
         </div>
+        <main>
+            <div class="top-row px-4">
+                <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            </div>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+            <article class="content px-4">
+                @Body
+            </article>
+        </main>
+    } else
+    {
+        <main>
+            <Counter/>
+        </main>
+    }
+
+
+
 </div>
+
+*@
+
+<MudLayout>
+    @if (IsLoggedIn) {
+        <MudDrawer id="nav-drawer" @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+            <NavMenu @bind-IsDarkModeToggle="_isDarkMode"/>
+        </MudDrawer>
+    }
+    <MudMainContent Class="pt-16 pa-4">
+        @Body
+    </MudMainContent>
+</MudLayout>
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+
+@code {
+
+    bool IsLoggedIn = true;
+
+    private MudTheme _theme = new();
+    public bool _isDarkMode = true;
+    private bool _drawerOpen = true;
+
+
+
+}

@@ -1,6 +1,6 @@
 ﻿@page "/groupmessages"
 @using Microsoft.EntityFrameworkCore
-@using Microsoft.AspNetCore.Components.QuickGrid
+
 @using chat_app.Models
 @using chat_app.Data
 @implements IAsyncDisposable
@@ -14,15 +14,23 @@
     <a href="groupmessages/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="context.GroupMessage">
-    <PropertyColumn Property="groupmessage => groupmessage.Message" />
 
-    <TemplateColumn Context="groupmessage">
-        <a href="@($"groupmessages/edit?id={groupmessage.Id}")">Edit</a> |
-        <a href="@($"groupmessages/details?id={groupmessage.Id}")">Details</a> |
-        <a href="@($"groupmessages/delete?id={groupmessage.Id}")">Delete</a>
-    </TemplateColumn>
-</QuickGrid>
+<MudDataGrid Items="context.GroupMessage">
+    <Columns>
+        <PropertyColumn Property="groupmessage => groupmessage.Message" />
+        <TemplateColumn>
+            <CellTemplate>
+                <a href="@($"groupmessages/edit?id={context.Item.Id}")">Edit</a> |
+                <a href="@($"groupmessages/details?id={context.Item.Id}")">Details</a> |
+                <a href="@($"groupmessages/delete?id={context.Item.Id}")">Delete</a>
+
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+
+
+
+</MudDataGrid>
 
 @code {
     private chat_appContext context = default!;

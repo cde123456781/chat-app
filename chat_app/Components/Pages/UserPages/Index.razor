@@ -1,6 +1,6 @@
 ﻿@page "/users"
 @using Microsoft.EntityFrameworkCore
-@using Microsoft.AspNetCore.Components.QuickGrid
+@*@using Microsoft.AspNetCore.Components.QuickGrid *@
 @using chat_app.Models
 @using chat_app.Data
 @implements IAsyncDisposable
@@ -14,6 +14,8 @@
     <a href="users/create">Create New</a>
 </p>
 
+@*
+
 <QuickGrid Class="table" Items="context.User">
     <PropertyColumn Property="user => user.Username" />
     <PropertyColumn Property="user => user.Password" />
@@ -24,6 +26,26 @@
         <a href="@($"users/delete?id={user.Id}")">Delete</a>
     </TemplateColumn>
 </QuickGrid>
+
+*@
+
+<MudDataGrid Items="context.User">
+    <Columns>
+        <PropertyColumn Property="user => user.Username" Title="Username" />
+        <PropertyColumn Property="user => user.Password" Title="Password"/>
+        <TemplateColumn>
+            <CellTemplate>
+                <a href="@($"users/edit?id={context.Item.Id}")">Edit</a> |
+                <a href="@($"users/details?id={context.Item.Id}")">Details</a> |
+                <a href="@($"users/delete?id={context.Item.Id}")">Delete</a>
+
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+
+
+
+</MudDataGrid>
 
 @code {
     private chat_appContext context = default!;
