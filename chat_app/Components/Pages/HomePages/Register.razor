@@ -1,16 +1,99 @@
-﻿
-<div class="card">
-    <MudCard>
-        <MudCardContent>
-            <MudText Typo="Typo.h3">Register</MudText>
-            <MudText Typo="Typo.body2">The quick, brown fox jumps over a lazy dog.</MudText>
-        </MudCardContent>
-        <MudCardActions>
-            <MudButton Variant="Variant.Text" Color="Color.Primary">Learn more</MudButton>
-        </MudCardActions>
-    </MudCard>
+﻿@page "/register"
+@using Microsoft.EntityFrameworkCore
+@using chat_app.Models
+@using System.ComponentModel.DataAnnotations
+@using chat_app.Components.Pages.HomePages.HelperClasses;
+@using System.Diagnostics
+@using Blazilla
+@inject IDbContextFactory<chat_app.Data.chat_appContext> DbFactory
+@inject NavigationManager NavigationManager
+
+
+
+<div class="@HomeStateValue!.Container" @ontransitionend="async e => {HomeStateValue.ChangeState(); await UpdateState();}">
+    
+	<EditForm Model="@user" OnSubmit="OnSubmit">
+		<FluentValidator AsyncMode="true"/>
+		<MudGrid style="margin: auto;">
+			<MudItem xs="12" sm="7">
+				<MudCard>
+					<MudCardHeader>
+						<CardHeaderContent>
+							<MudText Typo="Typo.h6">Register a Chatter account</MudText>
+						</CardHeaderContent>
+					</MudCardHeader>
+
+					<MudCardContent>
+						<MudTextField Label="Username" DebounceInterval="500"
+									  @bind-Value="user.Username" For="@(() => user.Username)"/>
+						<MudTextField Label="Password" HelperText="Choose a strong password" Class="mt-3"
+									  @bind-Value="user.Password" For="@(() => user.Password)" InputType="InputType.Password"/>
+						<MudTextField Label="Verify Password" HelperText="" Class="mt-3"
+									  @bind-Value="user.VerifyPassword" For="@(() => user.VerifyPassword)" InputType="InputType.Password"/>
+					</MudCardContent>
+					<MudCardActions>
+						<MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" Disabled="@isSubmitting">Register</MudButton>
+					</MudCardActions>
+					<MudFlexBreak />
+					<MudButton OnClick="@(async () => {HomeStateValue!.SetLogin(); await UpdateState();})" Variant="Variant.Text" Class="ml-auto">Already have an account? Login</MudButton>
+				</MudCard>
+			</MudItem>
+		</MudGrid>
+	</EditForm>
 </div>
 
 @code {
+	[Parameter]
+	public HomeState? HomeStateValue { get; set; }
+
+	[Parameter]
+	public EventCallback<HomeState> HomeStateValueChanged { get; set; }
+
+
+	private bool isSubmitting = false;
+
+	async Task UpdateState()
+	{
+		await HomeStateValueChanged.InvokeAsync(HomeStateValue);
+		StateHasChanged();
+	}
+
+
+	[SupplyParameterFromForm]
+	private RegisterForm user { get; set; } = new();
+
+	private string userTooltip = "";
+	private bool showUsernameError = false;
+
+	private async Task AddUser()
+	{
+		using var context = DbFactory.CreateDbContext();
+		//context.User.Add(User);
+		await context.SaveChangesAsync();
+		NavigationManager.NavigateTo("/users");
+	}
+
+	private async Task OnSubmit(EditContext context)
+	{
+		isSubmitting = true;
+		StateHasChanged();
+		try
+		{
+			var isValid = await context.ValidateAsync();
+
+			if (isValid)
+			{
+				await AddUser();
+			}
+		}
+		finally
+		{
+			isSubmitting = false;
+			StateHasChanged();
+		}
+
+	}
+
+
 
 }

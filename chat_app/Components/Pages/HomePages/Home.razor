@@ -1,70 +1,21 @@
 ﻿@page "/"
+@using chat_app.Components.Pages.HomePages.HelperClasses;
 
-@if (IsHome(CurrentState))
+
+@if (state.IsHome())
 {
-	<PageTitle>Chatter</PageTitle>
-
-	<div class="@Container">
-		<MudText Typo="Typo.h1">Chatter 🗪</MudText>
-
-		<MudText Typo="Typo.h5" Class="wave-text">Connect. Communicate. <span class="chatter"><span>C</span><span>h</span><span>a</span><span>t</span><span>t</span><span>e</span><span>r</span>.</span></MudText>
-
-		<MudButton OnClick="@(() => SetLogin())" Class="mud-button">Login</MudButton>
-		<MudButton OnClick="@(() => SetRegister())" Class="mud-button">Register</MudButton>
-	</div>
-} else if (IsLogin(CurrentState))
+	<LandingPage @bind-HomeStateValue=state/>
+} else if (state.IsLogin())
 {
-	<Login/>
-} else if (IsRegister(CurrentState))
+	<Login @bind-HomeStateValue=state/>
+} else if (state.IsRegister())
 {
-	<Register/>
+	<Register @bind-HomeStateValue=state/>
 }
 
 
 @code {
-    enum State
-    {
-        Home,
-        Login,
-        Register
-    }
-
-    State CurrentState = State.Home;
-    private string Container = "";
-
-
-    private bool IsHome(State state)
-    {
-        return state == State.Home;
-    }
-
-    private bool IsLogin(State state)
-    {
-        return state == State.Login;
-    }
-
-    private bool IsRegister(State state)
-    {
-        return state == State.Register;
-    }
-
-
-    private async Task SetLogin()
-    {
-        Container = "fade-out-card";
-        await Task.Delay(400);
-        CurrentState = State.Login;
-
-
-    }
-
-    private async Task SetRegister()
-    {
-        Container = "fade-out-card";
-        await Task.Delay(400);
-        CurrentState = State.Register;
-
-    }
+	HomeState state = new HomeState();
 
     
 

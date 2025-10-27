@@ -1,0 +1,28 @@
+﻿@using chat_app.Components.Pages.HomePages.HelperClasses;
+
+<PageTitle>Chatter</PageTitle>
+
+<div class="@HomeStateValue.Container" @ontransitionend="async e => {HomeStateValue.ChangeState(); await UpdateState(); }">
+	<MudText Typo="Typo.h1">Chatter 🗪</MudText>
+
+	<MudText Typo="Typo.h5" Class="wave-text">Connect. Communicate. <span class="chatter"><span>C</span><span>h</span><span>a</span><span>t</span><span>t</span><span>e</span><span>r</span>.</span></MudText>
+
+	<MudButton OnClick="@(async () => {HomeStateValue.SetLogin(); await UpdateState();})">Login</MudButton>
+	<MudButton OnClick="@(async () => {HomeStateValue.SetRegister(); await UpdateState();})">Register</MudButton>
+</div>
+
+
+@code {
+	[Parameter]
+	public required HomeState HomeStateValue { get; set; }
+
+	[Parameter]
+	public EventCallback<HomeState> HomeStateValueChanged { get; set; }
+
+	async Task UpdateState()
+	{
+		await HomeStateValueChanged.InvokeAsync(HomeStateValue);
+		StateHasChanged();
+	}
+
+}

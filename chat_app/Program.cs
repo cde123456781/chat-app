@@ -1,8 +1,11 @@
 ﻿using chat_app.Components;
+using chat_app.Data;
+using chat_app.Models;
+using FluentValidation;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using chat_app.Data;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +29,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.SlidingExpiration = true;
         options.AccessDeniedPath = "/Error/403";
     });
+
+
+
+
+builder.Services.AddScoped<IValidator<RegisterForm>, RegisterValidator>();
+builder.Services.AddScoped<IValidator<LoginForm>, LoginValidator>();
 
 var app = builder.Build();
 

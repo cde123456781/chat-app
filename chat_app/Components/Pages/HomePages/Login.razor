@@ -1,16 +1,119 @@
-﻿
-<div class="card">
-    <MudCard>
-        <MudCardContent>
-            <MudText Typo="Typo.h3">Login</MudText>
-            <MudText Typo="Typo.body2">The quick, brown fox jumps over a lazy dog.</MudText>
-        </MudCardContent>
-        <MudCardActions>
-            <MudButton Variant="Variant.Text" Color="Color.Primary">Learn more</MudButton>
-        </MudCardActions>
-    </MudCard>
+﻿@page "/login"
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@using Microsoft.EntityFrameworkCore
+@using System.Security.Claims
+@using chat_app.Models
+@using System.ComponentModel.DataAnnotations
+@using chat_app.Components.Pages.HomePages.HelperClasses;
+@using System.Diagnostics
+@using Blazilla
+@using Microsoft.AspNetCore.Http
+@inject IDbContextFactory<chat_app.Data.chat_appContext> DbFactory
+@inject NavigationManager NavigationManager
+@inject IHttpContextAccessor httpContextAccessor
+
+
+<div class="@HomeStateValue!.Container" @ontransitionend="async e => {HomeStateValue.ChangeState(); await UpdateState();}">
+    
+	<EditForm Model="@user" OnValidSubmit="OnValidSubmit">
+	<FluentValidator/>
+	<MudGrid style="margin: auto;">
+		<MudItem xs="12" sm="7">
+			<MudCard>
+				<MudCardHeader>
+					<CardHeaderContent>
+						<MudText Typo="Typo.h6">Login</MudText>
+					</CardHeaderContent>
+				</MudCardHeader>
+
+				<MudCardContent>
+					<MudTextField Label="Username" 
+								  @bind-Value="user.Username" For="@(() => user.Username)"/>
+					<MudTextField Label="Password" Class="mt-3"
+								  @bind-Value="user.Password" For="@(() => user.Password)" InputType="InputType.Password"/>
+
+				</MudCardContent>
+				<MudText Type="Typo.body2" >@UserDoesNotExistMessage</MudText>
+				<MudCardActions>
+					<MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Login</MudButton>
+				</MudCardActions>
+				<MudFlexBreak />
+				<MudButton OnClick="@(async () => {HomeStateValue!.SetRegister(); await UpdateState();})" Variant="Variant.Text" Class="ml-auto">Don't have an account? Register</MudButton>
+			</MudCard>
+		</MudItem>
+	</MudGrid>
+	</EditForm>
 </div>
 
 @code {
+	[Parameter]
+	public HomeState? HomeStateValue { get; set; }
+
+	[Parameter]
+	public EventCallback<HomeState> HomeStateValueChanged { get; set; }
+
+	private string UserDoesNotExistMessage = ""; 
+
+	async Task UpdateState()
+	{
+		await HomeStateValueChanged.InvokeAsync(HomeStateValue);
+		StateHasChanged();
+	}
+
+
+	[SupplyParameterFromForm]
+	private LoginForm user { get; set; } = new();
+
+
+	private async Task OnValidSubmit(EditContext context)
+	{
+		using var dbContext = DbFactory.CreateDbContext();
+		User? foundUser = await dbContext.User.FirstOrDefaultAsync(m => m.Username == user.Username && m.Password == user.Password);
+
+		if (foundUser is null)
+		{
+			UserDoesNotExistMessage = "Username or password are incorrect";
+		} else
+		{
+			        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, foundUser.Username!),
+        };
+
+        var claimsIdentity = new ClaimsIdentity(
+            claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        var authProperties = new AuthenticationProperties
+        {
+            //AllowRefresh = <bool>,
+            // Refreshing the authentication session should be allowed.
+
+            //ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(10),
+            // The time at which the authentication ticket expires. A 
+            // value set here overrides the ExpireTimeSpan option of 
+            // CookieAuthenticationOptions set with AddCookie.
+
+            //IsPersistent = true,
+            // Whether the authentication session is persisted across 
+            // multiple requests. When used with cookies, controls
+            // whether the cookie's lifetime is absolute (matching the
+            // lifetime of the authentication ticket) or session-based.
+
+            //IssuedUtc = <DateTimeOffset>,
+            // The time at which the authentication ticket was issued.
+
+            //RedirectUri = <string>
+            // The full path or absolute URI to be used as an http 
+            // redirect response value.
+        };
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme, 
+            new ClaimsPrincipal(claimsIdentity), 
+            authProperties);
+		}
+
+	}
 
 }
